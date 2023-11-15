@@ -18,10 +18,11 @@
 
 // The first four layers gets a name for readability, which is then used in the OLED below.
 enum layers {
-  _DEFAULT,
-  _LOWER,
-  _RAISE,
-  _ADJUST
+    _QWERTY,
+    _STENO,
+    _SILENT,
+    _NUMBER,
+    _SYMBOL
 };
 
 #ifdef OLED_ENABLE
@@ -209,18 +210,16 @@ void render_layer_state(void) {
         0x20, 0xbd, 0xbe, 0xbf, 0x20,
         0x20, 0xdd, 0xde, 0xdf, 0x20, 0};
 
-    switch (get_highest_layer(layer_state | default_layer_state)) {
-        case _LOWER:
-            oled_write_P(lower_layer, false);
-            break;
-        case _RAISE:
-            oled_write_P(raise_layer, false);
-            break;
-        case _ADJUST:
-            oled_write_P(adjust_layer, false);
-            break;
-        default:
-            oled_write_P(default_layer, false);
+    if(layer_state_is(_SYMBOL)) {
+        oled_write_P(lower_layer, false);
+    } else if(layer_state_is(_NUMBER)) {
+        oled_write_P(raise_layer, false);
+    } else if(layer_state_is(_STENO)) {
+        oled_write_P(default_layer, false);
+    } else if (layer_state_is(_QWERTY)) {
+        oled_write_P(default_layer, false);
+    } else {
+        oled_write_P(adjust_layer, false);
     }
 }
 
@@ -299,9 +298,9 @@ bool encoder_update_kb(uint8_t index, bool clockwise) {
     } else if (index == 1) {
         // Page up/Page down
         if (clockwise) {
-            tap_code(KC_PGDN);
+            tap_code(KC_RIGHT);
         } else {
-            tap_code(KC_PGUP);
+            tap_code(KC_LEFT);
         }
     }
     return true;
