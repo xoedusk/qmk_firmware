@@ -1,5 +1,5 @@
 CONVERT_TO=liatris
 ENCODER_ENABLE = yes
 STENO_ENABLE = yes
-NKRO_ENABLE = yes
+NKRO_ENABLE = no
 OLED_ENABLE = yes
