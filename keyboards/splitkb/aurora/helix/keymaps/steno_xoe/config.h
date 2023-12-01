@@ -28,3 +28,7 @@
  
 #define LED_CAPS_LOCK_PIN 24
 #define LED_PIN_ON_STATE 0
+
+// These next three supposedly allow syncing data between the two halves. Useful for getting data to appear on slave OLED.
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_TRANSACTION_IDS_USER RPC_ID_USER_STR
