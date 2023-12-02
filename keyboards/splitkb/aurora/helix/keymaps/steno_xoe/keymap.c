@@ -16,41 +16,47 @@ enum my_helix_layers {
 #define SILENT DF(_SILENT)
 #define NUMBER MO(_NUMBER)
 #define SYMBOL MO(_SYMBOL)
+#define MAX_STROKE_LIST_SIZE 4
+#define MAX_STROKE_LENGTH 24
 
-char stringToWrite[16] = "supah ";
+char newStroke[MAX_STROKE_LENGTH] = "STOEUN";
+
+char strokeList[MAX_STROKE_LIST_SIZE][MAX_STROKE_LENGTH] = {"X1", "X2", "X3", "X4"};
+uint8_t nextStrokeListIndex = 0;
 
 
 
-// function called upon receiving the string just copies the value onto slave's variable
-void user_string_sync(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    memcpy(stringToWrite, initiator2target_buffer, initiator2target_buffer_size);
-}
 
-void keyboard_post_init_user(void) {
-   transaction_register_rpc(RPC_ID_USER_STR, user_string_sync);
-}
+// // function called upon receiving the string just copies the value onto slave's variable
+// void user_string_sync(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+//     memcpy(newStroke, initiator2target_buffer, initiator2target_buffer_size);
+// }
 
-void housekeeping_task_user(void) {
-	    // if slave tries and send data, we blow up :P
-    if (!is_keyboard_master()) {
-        return;
-    }
-    static uint32_t str_sync = 0;
+// void keyboard_post_init_user(void) {
+//    transaction_register_rpc(RPC_ID_USER_STR, user_string_sync);
+// }
 
-    // synch every 500ms (half a second)
-    if (timer_elapsed32(str_sync) < 500) {
-        // too soon, just quit
-        return;
-    }
+// void housekeeping_task_user(void) {
+// 	    // if slave tries and send data, we blow up :P
+//     if (!is_keyboard_master()) {
+//         return;
+//     }
+//     static uint32_t str_sync = 0;
 
-    // store current time for next checks
-    str_sync = timer_read32();
+//     // synch every 500ms (half a second)
+//     if (timer_elapsed32(str_sync) < 500) {
+//         // too soon, just quit
+//         return;
+//     }
+
+//     // store current time for next checks
+//     str_sync = timer_read32();
     
-    // send it
-    // `<your_string>` has to be defined on this same file, so ARRAY_SIZE can get its length
-    // otherwise you could use `strlen(<your_string>) + 1`
-    transaction_rpc_send(RPC_ID_USER_STR, ARRAY_SIZE(stringToWrite), stringToWrite);
-}
+//     // send it
+//     // `<your_string>` has to be defined on this same file, so ARRAY_SIZE can get its length
+//     // otherwise you could use `strlen(<your_string>) + 1`
+//     transaction_rpc_send(RPC_ID_USER_STR, ARRAY_SIZE(newStroke), newStroke);
+// }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -446,7 +452,7 @@ bool oled_task_kb(void) {
     if (!oled_task_user()) {
         return false;
     }
-    if (is_keyboard_master()) {
+    if (!is_keyboard_master()) {
         // Renders the current keyboard state (layers and mods)
         render_logo();
         render_logo_text();
@@ -494,7 +500,20 @@ bool oled_task_kb(void) {
         // };
         // clang-format on
         //oled_write_raw_P(aurora_art, sizeof(aurora_art));
-    	oled_write((stringToWrite), false);
+    	oled_clear();
+    	oled_set_cursor(0,0);
+    	//oled_write_ln((newStroke), false);
+
+    	// If the variable nextStrokeListIndex is 2, the most recent array that was filled
+    	// was 1. To make 1 last in the drawing, we should start at 2. Thus, we start at
+    	// nextStrokeListIndex, wrapping around to 0 using mod as necessary.
+    	for(int i = nextStrokeListIndex;i<nextStrokeListIndex + MAX_STROKE_LIST_SIZE;i++) {
+    		int j = i - nextStrokeListIndex; //need one that starts from 0 too.
+
+    		oled_set_cursor(0,j*4); // 4 lines in between chords.
+    		oled_write_ln((strokeList[i%MAX_STROKE_LIST_SIZE]), false);
+    		oled_write_ln(" ", false);
+    	}
     }
     return false;
 }
@@ -526,9 +545,120 @@ bool encoder_update_kb(uint8_t index, bool clockwise) {
 }
 #endif
 
+
+// append one character to an existing char array.
+void string_append(char* str, char c){
+	int len = strlen(str);
+	str[len] = c;
+	str[len+1] = '\0';
+}
+
+const char fullLetterMatrix[48] = "--######-SSTKPWH-RAO**----**EUFR-PBLGTSD-######Z";
+
 bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t mode, uint8_t chord[MAX_STROKE_SIZE], int8_t n_pressed_keys) {
 
-		stringToWrite[2] = 'J';
+	// if it's not about to send, I don't care about it.
+	if(!((record->event.pressed) == false && (n_pressed_keys < 1))) return true;
+
+
+		//newStroke[2] = 'J';
+	//strncpy(newStroke,"",0);
+	newStroke[0] = '\0';
+	char myFullStringToBuild[MAX_STROKE_LENGTH] = "";
+
+	bool num_pressed = false;
+	bool star_pressed = false;
+	bool s_pressed = false;
+	bool has_vowels = false;
+	bool has_hyphened = false;
+	bool should_append;
+	uint8_t byteToInspect; // ranges from 0 to 5, corresponding to the 6 bytes
+	int8_t highestMatchedChar = -1; // I want to know how far into the fullLetterMatrix I got.
+
+	for(int i = 0; i<48;i++) {
+		should_append = true; // set to false later if repeated symbol
+
+		//if we are at 0,8,16,24,32,40, then we need to change arrays
+		if(i%8==0) byteToInspect =chord[i/8];
+
+		uint8_t leftMask = 0b10000000; //will look at leftmost bit
+
+		if((leftMask & byteToInspect) == leftMask && fullLetterMatrix[i]!='-') {
+			// We know that fullLetterMatrix[i] was pressed and it's a printable character
+
+
+			if (i >= 18 && i <= 29) has_vowels = true; // This range corresponds to the vowels and the stars.
+
+
+			// If we start to hit the ending consonants (index of 30) and we've yet to print a charactor,
+			// then we better print a hyphen
+			if(i >= 30 && !has_hyphened && (highestMatchedChar == -1 || !has_vowels)) {
+				string_append(myFullStringToBuild, '-');
+				has_hyphened = true;
+			}
+
+			highestMatchedChar = i;
+
+			switch(fullLetterMatrix[i]) {
+			case '#':
+				(num_pressed) ? (should_append = false) : (num_pressed = true);
+				break;
+			case '*':
+				(star_pressed) ? (should_append = false) : (star_pressed = true);
+				break;
+			case 'S':
+				(s_pressed) ? (should_append = false) : (s_pressed = true);
+			}
+
+			if (should_append) string_append(myFullStringToBuild, fullLetterMatrix[i]);
+		}
+
+		byteToInspect = byteToInspect << 1; 
+	}
+
+	//string_append(myFullStringToBuild, '\0');
+	string_append(myFullStringToBuild, '\0');
+	strncpy(newStroke, myFullStringToBuild, MAX_STROKE_LENGTH);
+
+	//Add it to the array of the correct index
+	strncpy(strokeList[nextStrokeListIndex], myFullStringToBuild, MAX_STROKE_LENGTH);
+	nextStrokeListIndex++;
+	if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
+
 
 	return true; // allows the rest of the processing to happen as normal.
 }
+
+
+/* The following code is how to implement this on my slave
+
+// lets define a custom data type to make things easier to work with
+typedef struct {
+    uint8_t position; // position of the string on the array
+    uint8_t length;
+    char    str[RPC_S2M_BUFFER_SIZE - 2]; // this is as big as you can fit on the split comms message
+} split_msg_t;
+_Static_assert(sizeof(split_msg_t) == RPC_S2M_BUFFER_SIZE, "Wrong size");
+
+
+// instead of
+    transaction_rpc_send(RPC_ID_USER_STR, ARRAY_SIZE(stringToWrite), stringToWrite);
+// you now do:
+    split_msg_t msg = {0};
+    msg.position = <your_variable>;
+    msg.length = strlen(<your_string>) + 1;
+    if (msg.length > ARRAY_SIZE(split_msg_t.str)) {
+        // too big to fit
+        // do something here if you like, but do not send the message
+        return;
+    }
+    strcpy(msg.str, <your_string>);
+    transaction_rpc_send(RPC_ID_USER_STR, sizeof(msg), &msg);
+
+// instead of
+    memcpy(stringToWrite, initiator2target_buffer, initiator2target_buffer_size);
+// you now do:
+    split_msg_t *msg = (split_msg_t *)initiator2target_buffer;
+    memcpy(<your_array>[msg->position], msg->str, msg->length);
+    
+*/
