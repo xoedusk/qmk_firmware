@@ -93,7 +93,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		),
 
 	[_SYMBOL] = LAYOUT(
-		KC_ESC,		RGB_HUI,	RGB_SAI,	RGB_VAI,	RGB_MOD,	XXXXXXX,												XXXXXXX,	XXXXXXX,	KC_UP,		XXXXXXX,	XXXXXXX,	KC_DEL,
+		KC_ESC,		RGB_HUI,	RGB_SAI,	RGB_VAI,	RGB_MOD,	XXXXXXX,												DB_TOGG,	XXXXXXX,	KC_UP,		XXXXXXX,	XXXXXXX,	KC_DEL,
 		XXXXXXX,	RGB_HUD,	RGB_SAD,	RGB_VAD,	RGB_RMOD,	XXXXXXX,												XXXXXXX,	KC_LEFT,	KC_DOWN,	KC_RIGHT,	S(KC_LBRC),	KC_BSPC,
 		XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,												XXXXXXX,	XXXXXXX,	KC_RBRC,	KC_MINUS,	KC_EQL,		KC_BSLS,
 		KC_LSFT,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,		EE_CLR,		XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	KC_LBRC,	KC_ENT,
@@ -668,6 +668,7 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 
 	//Add it to the array of the correct index
 	strncpy(strokeList[nextStrokeListIndex], myFullStringToBuild, MAX_STROKE_LENGTH);
+	dprintf("Added %s to position %i.\n", myFullStringToBuild, nextStrokeListIndex);
 	nextStrokeListIndex++;
 	if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
 
