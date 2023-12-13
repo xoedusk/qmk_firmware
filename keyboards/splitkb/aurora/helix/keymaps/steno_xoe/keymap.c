@@ -81,10 +81,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 				// Now update the OLED with the new stroke. This doesn't happen automatically because
 				// the user didn't do a steno stroke. 
 					add_stroke_to_oled("KPA");
-					// strncpy(strokeList[nextStrokeListIndex], "KPA", MAX_STROKE_LENGTH);
-					// dprintf("Added KPA to position %i. This exists within process_combo_event().\n", nextStrokeListIndex);
-					// nextStrokeListIndex++;
-					// if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
+
 
 			}
 			break;
@@ -93,37 +90,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 
 
 
-
-// // function called upon receiving the string just copies the value onto slave's variable
-// void user_string_sync(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-//     memcpy(newStroke, initiator2target_buffer, initiator2target_buffer_size);
-// }
-
-// void keyboard_post_init_user(void) {
-//    transaction_register_rpc(RPC_ID_USER_STR, user_string_sync);
-// }
-
-// void housekeeping_task_user(void) {
-// 	    // if slave tries and send data, we blow up :P
-//     if (!is_keyboard_master()) {
-//         return;
-//     }
-//     static uint32_t str_sync = 0;
-
-//     // synch every 500ms (half a second)
-//     if (timer_elapsed32(str_sync) < 500) {
-//         // too soon, just quit
-//         return;
-//     }
-
-//     // store current time for next checks
-//     str_sync = timer_read32();
-    
-//     // send it
-//     // `<your_string>` has to be defined on this same file, so ARRAY_SIZE can get its length
-//     // otherwise you could use `strlen(<your_string>) + 1`
-//     transaction_rpc_send(RPC_ID_USER_STR, ARRAY_SIZE(newStroke), newStroke);
-// }
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -168,86 +134,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		)
 };
 
-// #ifdef OLED_ENABLE
-// 	// bool oled_task_user(void) {
-// 	// 	// if(is_keyboard_master()){
-// 	// 	// 	oled_write_P(PSTR("Layer\n-----\n\n"), false);
-// 	// 	// }
-
-// 	// 	// if (is_keyboard_master()) {
-// 	// 	// 	oled_write_P(PSTR("Layer:\n"), false);
-
-// 	// 	// 	switch(get_highest_layer(layer_state)) {
-// 	// 	// 	case _QWERTY:
-// 	// 	// 		oled_write_P(PSTR("QWERTY\n"), false);
-// 	// 	// 		break;
-// 	// 	// 	case _STENO:
-// 	// 	// 		oled_write_P(PSTR("STENO\n"), false);
-// 	// 	// 		break;
-// 	// 	// 	case _SILENT:
-// 	// 	// 		oled_write_P(PSTR("Silent\n"), false);
-// 	// 	// 		break;
-// 	// 	// 	default:
-// 	// 	// 		oled_write_P(PSTR("Undefined\n"), false);
-// 	// 	// 	}
-// 	// 	// }
-
-// 	// 	return false;
-// 	// }
-
-// layer_state_t default_layer_state_set_user(layer_state_t state) {
-// 	if (is_keyboard_master()){
-// 		//oled_write_P(PSTR("Layer\n-----\n\n"), false);
-// 		switch(get_highest_layer(state)){
-// 			case _QWERTY:
-// 				oled_write_P(PSTR("qwer\n"), false);
-// 				break;
-// 			case _STENO:
-// 				oled_write_P(PSTR("sten\n"), false);
-// 				break;
-// 			case _SILENT:
-// 				oled_write_P(PSTR("off\n"), false);
-// 				break;
-// 			case _NUMBER:
-// 				oled_write_P(PSTR("numb\n"), false);
-// 				break;
-// 			case _SYMBOL:
-// 				oled_write_P(PSTR("symb\n"), false);
-// 				break;
-// 			default:
-// 				oled_write_P(PSTR("???\n"), false);
-// 		}
-// 	}
-// 	return state;
-// }
-
-// 	layer_state_t layer_state_set_user(layer_state_t state) {
-// 	if (is_keyboard_master()){
-// 		//oled_write_P(PSTR("Layer\n-----\n\n"), false);
-// 		switch(get_highest_layer(state)){
-// 			case _QWERTY:
-// 				oled_write_P(PSTR("qwer\n"), false);
-// 				break;
-// 			case _STENO:
-// 				oled_write_P(PSTR("sten\n"), false);
-// 				break;
-// 			case _SILENT:
-// 				oled_write_P(PSTR("off\n"), false);
-// 				break;
-// 			case _NUMBER:
-// 				oled_write_P(PSTR("numb\n"), false);
-// 				break;
-// 			case _SYMBOL:
-// 				oled_write_P(PSTR("symb\n"), false);
-// 				break;
-// 			default:
-// 				oled_write_P(PSTR("???\n"), false);
-// 		}
-// 	}
-
-//     return state;	
-// }
-// #endif
 
 void keyboard_pre_init_user(void) {
   // Set our LED pin as output
@@ -322,137 +208,6 @@ void render_mod_status_xoe(uint8_t modifiers) {
 
 
 
-// void render_mod_status_gui_alt(uint8_t modifiers) {
-//     static const char PROGMEM gui_off_1[] = {0x85, 0x86, 0};
-//     static const char PROGMEM gui_off_2[] = {0xa5, 0xa6, 0};
-//     static const char PROGMEM gui_on_1[] = {0x8d, 0x8e, 0};
-//     static const char PROGMEM gui_on_2[] = {0xad, 0xae, 0};
-
-//     static const char PROGMEM alt_off_1[] = {0x87, 0x88, 0};
-//     static const char PROGMEM alt_off_2[] = {0xa7, 0xa8, 0};
-//     static const char PROGMEM alt_on_1[] = {0x8f, 0x90, 0};
-//     static const char PROGMEM alt_on_2[] = {0xaf, 0xb0, 0};
-
-//     // fillers between the modifier icons bleed into the icon frames
-//     static const char PROGMEM off_off_1[] = {0xc5, 0};
-//     static const char PROGMEM off_off_2[] = {0xc6, 0};
-//     static const char PROGMEM on_off_1[] = {0xc7, 0};
-//     static const char PROGMEM on_off_2[] = {0xc8, 0};
-//     static const char PROGMEM off_on_1[] = {0xc9, 0};
-//     static const char PROGMEM off_on_2[] = {0xca, 0};
-//     static const char PROGMEM on_on_1[] = {0xcb, 0};
-//     static const char PROGMEM on_on_2[] = {0xcc, 0};
-
-//     if(modifiers & MOD_MASK_GUI) {
-//         oled_write_P(gui_on_1, false);
-//     } else {
-//         oled_write_P(gui_off_1, false);
-//     }
-
-//     if ((modifiers & MOD_MASK_GUI) && (modifiers & MOD_MASK_ALT)) {
-//         oled_write_P(on_on_1, false);
-//     } else if(modifiers & MOD_MASK_GUI) {
-//         oled_write_P(on_off_1, false);
-//     } else if(modifiers & MOD_MASK_ALT) {
-//         oled_write_P(off_on_1, false);
-//     } else {
-//         oled_write_P(off_off_1, false);
-//     }
-
-//     if(modifiers & MOD_MASK_ALT) {
-//         oled_write_P(alt_on_1, false);
-//     } else {
-//         oled_write_P(alt_off_1, false);
-//     }
-
-//     if(modifiers & MOD_MASK_GUI) {
-//         oled_write_P(gui_on_2, false);
-//     } else {
-//         oled_write_P(gui_off_2, false);
-//     }
-
-//     if (modifiers & MOD_MASK_GUI & MOD_MASK_ALT) {
-//         oled_write_P(on_on_2, false);
-//     } else if(modifiers & MOD_MASK_GUI) {
-//         oled_write_P(on_off_2, false);
-//     } else if(modifiers & MOD_MASK_ALT) {
-//         oled_write_P(off_on_2, false);
-//     } else {
-//         oled_write_P(off_off_2, false);
-//     }
-
-//     if(modifiers & MOD_MASK_ALT) {
-//         oled_write_P(alt_on_2, false);
-//     } else {
-//         oled_write_P(alt_off_2, false);
-//     }
-// }
-
-// void render_mod_status_ctrl_shift(uint8_t modifiers) {
-//     static const char PROGMEM ctrl_off_1[] = {0x89, 0x8a, 0};
-//     static const char PROGMEM ctrl_off_2[] = {0xa9, 0xaa, 0};
-//     static const char PROGMEM ctrl_on_1[] = {0x91, 0x92, 0};
-//     static const char PROGMEM ctrl_on_2[] = {0xb1, 0xb2, 0};
-
-//     static const char PROGMEM shift_off_1[] = {0x8b, 0x8c, 0};
-//     static const char PROGMEM shift_off_2[] = {0xab, 0xac, 0};
-//     static const char PROGMEM shift_on_1[] = {0xcd, 0xce, 0};
-//     static const char PROGMEM shift_on_2[] = {0xcf, 0xd0, 0};
-
-//     // fillers between the modifier icons bleed into the icon frames
-//     static const char PROGMEM off_off_1[] = {0xc5, 0};
-//     static const char PROGMEM off_off_2[] = {0xc6, 0};
-//     static const char PROGMEM on_off_1[] = {0xc7, 0};
-//     static const char PROGMEM on_off_2[] = {0xc8, 0};
-//     static const char PROGMEM off_on_1[] = {0xc9, 0};
-//     static const char PROGMEM off_on_2[] = {0xca, 0};
-//     static const char PROGMEM on_on_1[] = {0xcb, 0};
-//     static const char PROGMEM on_on_2[] = {0xcc, 0};
-
-//     if(modifiers & MOD_MASK_CTRL) {
-//         oled_write_P(ctrl_on_1, false);
-//     } else {
-//         oled_write_P(ctrl_off_1, false);
-//     }
-
-//     if ((modifiers & MOD_MASK_CTRL) && (modifiers & MOD_MASK_SHIFT)) {
-//         oled_write_P(on_on_1, false);
-//     } else if(modifiers & MOD_MASK_CTRL) {
-//         oled_write_P(on_off_1, false);
-//     } else if(modifiers & MOD_MASK_SHIFT) {
-//         oled_write_P(off_on_1, false);
-//     } else {
-//         oled_write_P(off_off_1, false);
-//     }
-
-//     if(modifiers & MOD_MASK_SHIFT) {
-//         oled_write_P(shift_on_1, false);
-//     } else {
-//         oled_write_P(shift_off_1, false);
-//     }
-
-//     if(modifiers & MOD_MASK_CTRL) {
-//         oled_write_P(ctrl_on_2, false);
-//     } else {
-//         oled_write_P(ctrl_off_2, false);
-//     }
-
-//     if (modifiers & MOD_MASK_CTRL & MOD_MASK_SHIFT) {
-//         oled_write_P(on_on_2, false);
-//     } else if(modifiers & MOD_MASK_CTRL) {
-//         oled_write_P(on_off_2, false);
-//     } else if(modifiers & MOD_MASK_SHIFT) {
-//         oled_write_P(off_on_2, false);
-//     } else {
-//         oled_write_P(off_off_2, false);
-//     }
-
-//     if(modifiers & MOD_MASK_SHIFT) {
-//         oled_write_P(shift_on_2, false);
-//     } else {
-//         oled_write_P(shift_off_2, false);
-//     }
-// }
 
 void render_logo(void) {
     static const char PROGMEM aurora_logo[] = {
@@ -482,22 +237,6 @@ void render_kb_LED_state(void) {
 }
 
 void render_layer_state(void) {
-    // static const char PROGMEM default_layer[] = {
-    //     0x20, 0x94, 0x95, 0x96, 0x20,
-    //     0x20, 0xb4, 0xb5, 0xb6, 0x20,
-    //     0x20, 0xd4, 0xd5, 0xd6, 0x20, 0};
-    // static const char PROGMEM raise_layer[] = {
-    //     0x20, 0x97, 0x98, 0x99, 0x20,
-    //     0x20, 0xb7, 0xb8, 0xb9, 0x20,
-    //     0x20, 0xd7, 0xd8, 0xd9, 0x20, 0};
-    // static const char PROGMEM lower_layer[] = {
-    //     0x20, 0x9a, 0x9b, 0x9c, 0x20,
-    //     0x20, 0xba, 0xbb, 0xbc, 0x20,
-    //     0x20, 0xda, 0xdb, 0xdc, 0x20, 0};
-    // static const char PROGMEM adjust_layer[] = {
-    //     0x20, 0x9d, 0x9e, 0x9f, 0x20,
-    //     0x20, 0xbd, 0xbe, 0xbf, 0x20,
-    //     0x20, 0xdd, 0xde, 0xdf, 0x20, 0};
     static const char PROGMEM silent_layer[] = {
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 
 				0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -570,47 +309,8 @@ bool oled_task_kb(void) {
         oled_advance_page(false);
         render_layer_state();
         oled_advance_page(false);
-        //render_mod_status_gui_alt(get_mods()|get_oneshot_mods());
-        //render_mod_status_ctrl_shift(get_mods()|get_oneshot_mods());
         render_kb_LED_state();
     } else {
-        // clang-format off
-        // static const char PROGMEM aurora_art[] = {
-        //     0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x1c, 0x08, 0x00, 0x00, 
-        //     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 
-        //     0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x40, 
-        //     0xe0, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x80, 0xc0, 0x80, 
-        //     0xc0, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xe0, 0x00, 0x80, 0x00, 0xf0, 0x00, 0x00, 0xc0, 
-        //     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 
-        //     0x81, 0x00, 0xc0, 0x00, 0xfe, 0x00, 0xfc, 0x00, 0xff, 0x20, 0xff, 0xf0, 0x0f, 0xf0, 0x00, 0xff, 
-        //     0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x00, 0xf8, 0x00, 0x00, 0xf8, 
-        //     0xff, 0x10, 0xff, 0x84, 0xff, 0x60, 0xff, 0x36, 0xff, 0x0f, 0xff, 0x3f, 0x00, 0x5f, 0x00, 0x05, 
-        //     0x80, 0x00, 0x80, 0x00, 0xc0, 0x38, 0x00, 0xec, 0xf0, 0x00, 0xfb, 0x80, 0xff, 0xf0, 0xff, 0xef, 
-        //     0xff, 0xe8, 0xff, 0x03, 0xff, 0x0c, 0xff, 0x00, 0xff, 0x00, 0x03, 0x00, 0x00, 0xf8, 0x00, 0x80, 
-        //     0xff, 0x20, 0xff, 0xd0, 0xff, 0xe0, 0xfe, 0xf8, 0xff, 0xfc, 0xff, 0xff, 0x0f, 0xff, 0x01, 0x3f, 
-        //     0xff, 0x00, 0x0f, 0x00, 0x01, 0x00, 0x03, 0x00, 0xfe, 0x80, 0xfe, 0x00, 0xc0, 0xff, 0xc4, 0xfb, 
-        //     0xff, 0xfe, 0xff, 0xff, 0xff, 0x3f, 0xff, 0xff, 0x07, 0xff, 0x03, 0x3f, 0x00, 0x0f, 0xc0, 0x00, 
-        //     0x00, 0x00, 0xb8, 0x00, 0xff, 0x40, 0xbe, 0xf0, 0xff, 0xf1, 0xff, 0xfe, 0xff, 0xff, 0xff, 0xff, 
-        //     0x1f, 0xff, 0x67, 0x00, 0xef, 0x00, 0x1f, 0x00, 0x00, 0x07, 0x00, 0x00, 0xe0, 0x00, 0xff, 0xf0, 
-        //     0xff, 0x88, 0xff, 0xc4, 0xff, 0xf8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x8f, 0x7f, 0x0f, 0xff, 
-        //     0x00, 0x07, 0xfe, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x00, 0xc0, 0x3f, 0xf8, 0xe7, 0xff, 
-        //     0xff, 0xff, 0xff, 0x1f, 0xff, 0xff, 0x1f, 0x3f, 0x01, 0xff, 0x0b, 0x00, 0xff, 0x00, 0x00, 0x05, 
-        //     0x00, 0x00, 0x00, 0xe0, 0x00, 0xf8, 0x60, 0x80, 0xfe, 0xe3, 0xfc, 0xff, 0x1e, 0xff, 0xff, 0x23, 
-        //     0xff, 0x09, 0xff, 0x20, 0x00, 0x3f, 0x02, 0x00, 0x00, 0x0f, 0x00, 0x40, 0x00, 0xc0, 0x00, 0xfc, 
-        //     0xe0, 0xfc, 0xf0, 0xff, 0xff, 0x7f, 0xfc, 0xff, 0x0f, 0xff, 0x07, 0x1f, 0x00, 0x01, 0x0f, 0x00, 
-        //     0x0f, 0x00, 0x81, 0x70, 0x0c, 0xf0, 0x80, 0x00, 0x00, 0xe4, 0xf8, 0xe6, 0x70, 0x3f, 0xcf, 0xff, 
-        //     0x1f, 0xff, 0x48, 0xff, 0x0f, 0x00, 0x07, 0x00, 0x00, 0x43, 0x60, 0xf8, 0xf0, 0xfe, 0x38, 0xfe, 
-        //     0x00, 0xfc, 0x03, 0x00, 0xc8, 0x72, 0xcf, 0xfc, 0x00, 0x03, 0x0f, 0x01, 0xe0, 0x1c, 0xe0, 0x03, 
-        //     0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x06, 0xf9, 0x00, 0x03, 0x00, 0x07, 
-        //     0xff, 0x00, 0x10, 0x12, 0xc9, 0xf0, 0xcf, 0xb4, 0x7f, 0x80, 0xe0, 0x1e, 0x01, 0x40, 0x65, 0x5e, 
-        //     0xe0, 0x00, 0x00, 0xf0, 0x0c, 0xf0, 0x00, 0x80, 0x7e, 0x01, 0x80, 0x93, 0xfc, 0xc0, 0x00, 0x00, 
-        //     0x00, 0x00, 0x00, 0x00, 0x89, 0x18, 0x2c, 0x46, 0x00, 0x07, 0x21, 0x10, 0x10, 0x80, 0x09, 0x13, 
-        //     0x31, 0xbf, 0xff, 0x00, 0x08, 0x1a, 0xf7, 0x0f, 0x00, 0x00, 0x44, 0x45, 0x34, 0xbf, 0xb8, 0x00, 
-        //     0x10, 0xf0, 0x08, 0xf4, 0x18, 0x11, 0xfc, 0x18, 0xfb, 0x0e, 0x10, 0xf8, 0x04, 0xf8, 0x10, 0x20, 
-        //     0x18, 0x09, 0xff, 0x0c, 0xea, 0x1f, 0x28, 0x60, 0x30, 0xf8, 0x20, 0xc0, 0x42, 0x33, 0x21, 0x00
-        // };
-        // clang-format on
-        //oled_write_raw_P(aurora_art, sizeof(aurora_art));
     	oled_clear();
     	oled_set_cursor(0,0);
     	//oled_write_ln((newStroke), false);
@@ -674,9 +374,7 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 	if(!((record->event.pressed) == false && (n_pressed_keys < 1))) return true;
 
 
-		//newStroke[2] = 'J';
-	//strncpy(newStroke,"",0);
-	//newStroke[0] = '\0';
+
 	char myFullStringToBuild[MAX_STROKE_LENGTH] = "";
 
 	bool num_pressed = false;
@@ -736,10 +434,7 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 	//Add it to the array of the correct index
 	add_stroke_to_oled(myFullStringToBuild);
 
-	// strncpy(strokeList[nextStrokeListIndex], myFullStringToBuild, MAX_STROKE_LENGTH);
-	// dprintf("Added %s to position %i.\n", myFullStringToBuild, nextStrokeListIndex);
-	// nextStrokeListIndex++;
-	// if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
+
 
 
 	return true; // allows the rest of the processing to happen as normal.
