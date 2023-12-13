@@ -1,5 +1,13 @@
+// Note to self: Compile with
+// $ qmk compile -kb splitkb/aurora/helix -km steno_xoe
+//
+// Move with
+// $ rsync -r /Users/brian/Repos/qmk_firmware/splitkb_aurora_helix_rev1_steno_xoe_liatris.uf2 /Volumes/RPI-RP2
+
+
+
 #include QMK_KEYBOARD_H
-#include "keymap_steno.h"
+//#include "keymap_steno.h"
 #include "transactions.h"
 #include <string.h>
 
@@ -19,10 +27,69 @@ enum my_helix_layers {
 #define MAX_STROKE_LIST_SIZE 4
 #define MAX_STROKE_LENGTH 30
 
-char newStroke[MAX_STROKE_LENGTH] = "STOEUN";
+//char newStroke[MAX_STROKE_LENGTH] = "STOEUN";
 
 char strokeList[MAX_STROKE_LIST_SIZE][MAX_STROKE_LENGTH] = {"\n\nby", "XoXo", " ", "2023"};
 uint8_t nextStrokeListIndex = 0;
+
+
+
+
+
+
+//This combo is used to prevent me from typing in steno KPA because that sends a Command+Q stroke if I accidentally am in QWERTY.
+enum combo_events {
+	ACCIDENTAL_KPA_CHORD_EVENT,
+};
+
+const uint16_t PROGMEM kpa_qwerty_chord[] = {KC_LGUI, KC_D, KC_X, COMBO_END};
+
+combo_t key_combos[] = {
+	[ACCIDENTAL_KPA_CHORD_EVENT] = COMBO(kpa_qwerty_chord, KC_NO),
+};
+
+
+void add_stroke_to_oled(char* newString) {
+	strncpy(strokeList[nextStrokeListIndex], newString, MAX_STROKE_LENGTH);
+	dprintf("Added %s to position %i.\n", newString, nextStrokeListIndex);
+	nextStrokeListIndex++;
+	if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
+}
+
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+	switch (combo_index) {
+		case ACCIDENTAL_KPA_CHORD_EVENT:
+			if (pressed) {
+				dprint("ACCIDENTAL_KPA_CHORD_EVENT detected.\n");
+
+				/*
+				1 Fn  #1  #2 #3 #4 #5   #6
+				0 S1- S2- T- K- P- W-   H-
+				0 R-  A-  O- *1 *2 res1 res2
+				0 pwr *3  *4 -E -U -F   -R
+				0 -P  -B  -L -G -T -S   -D
+				0 #7  #8  #9 #A #B #C   -Z
+				*/
+
+				//																		  KP        A
+				uint8_t myBytes[6] = {0b10000000, 0b00001100, 0b00100000, 0b00000000, 0b00000000, 0b00000000};
+
+				default_layer_set(1<<_STENO);
+				send_live_steno_chord_gemini(myBytes);
+
+				// Now update the OLED with the new stroke. This doesn't happen automatically because
+				// the user didn't do a steno stroke. 
+					add_stroke_to_oled("KPA");
+					// strncpy(strokeList[nextStrokeListIndex], "KPA", MAX_STROKE_LENGTH);
+					// dprintf("Added KPA to position %i. This exists within process_combo_event().\n", nextStrokeListIndex);
+					// nextStrokeListIndex++;
+					// if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
+
+			}
+			break;
+	}
+}
 
 
 
@@ -609,7 +676,7 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 
 		//newStroke[2] = 'J';
 	//strncpy(newStroke,"",0);
-	newStroke[0] = '\0';
+	//newStroke[0] = '\0';
 	char myFullStringToBuild[MAX_STROKE_LENGTH] = "";
 
 	bool num_pressed = false;
@@ -664,13 +731,15 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 
 	//string_append(myFullStringToBuild, '\0');
 	string_append(myFullStringToBuild, '\0');
-	strncpy(newStroke, myFullStringToBuild, MAX_STROKE_LENGTH);
+	//strncpy(newStroke, myFullStringToBuild, MAX_STROKE_LENGTH);
 
 	//Add it to the array of the correct index
-	strncpy(strokeList[nextStrokeListIndex], myFullStringToBuild, MAX_STROKE_LENGTH);
-	dprintf("Added %s to position %i.\n", myFullStringToBuild, nextStrokeListIndex);
-	nextStrokeListIndex++;
-	if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
+	add_stroke_to_oled(myFullStringToBuild);
+
+	// strncpy(strokeList[nextStrokeListIndex], myFullStringToBuild, MAX_STROKE_LENGTH);
+	// dprintf("Added %s to position %i.\n", myFullStringToBuild, nextStrokeListIndex);
+	// nextStrokeListIndex++;
+	// if (nextStrokeListIndex==MAX_STROKE_LIST_SIZE) nextStrokeListIndex=0;
 
 
 	return true; // allows the rest of the processing to happen as normal.

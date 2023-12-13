@@ -40,3 +40,6 @@ bool process_steno(uint16_t keycode, keyrecord_t *record);
 void steno_init(void);
 void steno_set_mode(steno_mode_t mode);
 #endif // STENO_ENABLE_ALL
+
+// Expose method for user to send gemini codes programmatically 
+void send_live_steno_chord_gemini(uint8_t theChord[]);

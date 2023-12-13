@@ -57,6 +57,14 @@ void send_steno_chord_gemini(void) {
         virtser_send(chord[i]);
     }
 }
+
+//Allows user to create a custom chord and send it programmatically.
+void send_live_steno_chord_gemini(uint8_t theChord[]) {
+    theChord[0] |= 0x80;
+    for (uint8_t i = 0; i < GEMINI_STROKE_SIZE; i++) {
+        virtser_send(theChord[i]);
+    }
+}
 #    else
 #        pragma message "VIRTSER_ENABLE = yes is required for Gemini PR to work properly out of the box!"
 #    endif // VIRTSER_ENABLE
