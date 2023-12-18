@@ -73,10 +73,12 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 				*/
 
 				//																		  KP        A
-				uint8_t myBytes[6] = {0b10000000, 0b00001100, 0b00100000, 0b00000000, 0b00000000, 0b00000000};
+				//uint8_t myBytes[6] = {0b10000000, 0b00001100, 0b00100000, 0b00000000, 0b00000000, 0b00000000};
 
 				default_layer_set(1<<_STENO);
-				send_live_steno_chord_gemini(myBytes);
+
+				static const uint16_t myChord[] PROGMEM  = {STN_KL, STN_PL, STN_A, CHORD_END};
+				send_custom_steno_chord(myChord);
 
 				// Now update the OLED with the new stroke. This doesn't happen automatically because
 				// the user didn't do a steno stroke. 
