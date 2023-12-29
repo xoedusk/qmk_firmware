@@ -32,3 +32,5 @@
 // These next three supposedly allow syncing data between the two halves. Useful for getting data to appear on slave OLED.
 #define SPLIT_LAYER_STATE_ENABLE
 #define SPLIT_TRANSACTION_IDS_USER RPC_ID_USER_STR
+
+#define TAPPING_TOGGLE 2

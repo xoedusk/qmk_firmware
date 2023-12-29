@@ -22,8 +22,8 @@ enum my_helix_layers {
 #define QWERTY DF(_QWERTY)
 #define STENO DF(_STENO)
 #define SILENT DF(_SILENT)
-#define NUMBER MO(_NUMBER)
-#define SYMBOL MO(_SYMBOL)
+#define NUMBER TT(_NUMBER)
+#define SYMBOL TT(_SYMBOL)
 #define MAX_STROKE_LIST_SIZE 4
 #define MAX_STROKE_LENGTH 30
 
