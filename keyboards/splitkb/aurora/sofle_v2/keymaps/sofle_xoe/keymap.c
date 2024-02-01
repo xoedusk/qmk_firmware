@@ -107,7 +107,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,								XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,
 		XXXXXXX,	STN_N1,		STN_N2,		STN_N3,		STN_N4,		XXXXXXX,								XXXXXXX,	STN_N5,		STN_N6,		STN_N7,		STN_N8,		STN_N9,
 		XXXXXXX,	STN_S1,		STN_TL,		STN_PL,		STN_HL,		STN_ST1,								STN_ST3,	STN_FR,		STN_PR,		STN_LR,		STN_TR,		STN_DR,
-		KC_LSFT,	STN_S2,		STN_KL,		STN_WL,		STN_RL,		STN_ST2,	XXXXXXX,		XXXXXXX,		STN_ST4,	STN_RR,		STN_BR,		STN_GR,		STN_SR,		STN_ZR,
+		KC_LSFT,	STN_S2,		STN_KL,		STN_WL,		STN_RL,		STN_ST2,	XXXXXXX,		XXXXXXX,	STN_ST4,	STN_RR,		STN_BR,		STN_GR,		STN_SR,		STN_ZR,
 								XXXXXXX,	KC_LALT,	STN_A,		STN_O,		NUMBER,			SYMBOL,		STN_E,		STN_U,		XXXXXXX,	XXXXXXX
 		),
 
@@ -121,7 +121,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 	[_NUMBER] = LAYOUT(
 		KC_ESC,		XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,								XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	KC_DEL,
-		XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,								XXXXXXX,	KC_P7,		KC_P8,		KC_P9,		XXXXXXX,	KC_BSPC,
+		KC_TAB,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,								XXXXXXX,	KC_P7,		KC_P8,		KC_P9,		XXXXXXX,	KC_BSPC,
 		XXXXXXX,	XXXXXXX,	XXXXXXX,	KC_UP,		XXXXXXX,	KC_PGUP,								XXXXXXX,	KC_P4,		KC_P5,		KC_P6,		XXXXXXX,	XXXXXXX,
 		XXXXXXX,	XXXXXXX,	KC_LEFT,	KC_DOWN,	KC_RIGHT,	KC_PGDN,	XXXXXXX,		XXXXXXX,	XXXXXXX,	KC_P1,		KC_P2,		KC_P3,		XXXXXXX,	KC_ENT,
 								XXXXXXX,	XXXXXXX,	XXXXXXX,	XXXXXXX,	_______,		STENO,		XXXXXXX,	KC_P0,		XXXXXXX,	KC_PDOT
@@ -381,7 +381,7 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 
 	bool num_pressed = false;
 	bool star_pressed = false;
-	bool s_pressed = false;
+	bool leftS_pressed = false;
 	bool has_vowels = false;
 	bool has_hyphened = false;
 	bool should_append;
@@ -412,6 +412,7 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 
 			highestMatchedChar = i;
 
+			// We don't want to double-print letters that have multiple keys, like * or # or the left S.
 			switch(fullLetterMatrix[i]) {
 			case '#':
 				(num_pressed) ? (should_append = false) : (num_pressed = true);
@@ -419,8 +420,10 @@ bool post_process_steno_user(uint16_t keycode, keyrecord_t *record, steno_mode_t
 			case '*':
 				(star_pressed) ? (should_append = false) : (star_pressed = true);
 				break;
-			case 'S':
-				(s_pressed) ? (should_append = false) : (s_pressed = true);
+			case 'S': // Only on index 9 and 10, which are the left S
+				if (i == 9 || i == 10) {
+					(leftS_pressed) ? (should_append = false) : (leftS_pressed = true);
+				}
 			}
 
 			if (should_append) string_append(myFullStringToBuild, fullLetterMatrix[i]);
